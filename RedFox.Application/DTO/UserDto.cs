@@ -7,4 +7,5 @@ public record UserDto(
     string Email,
     string Phone,
     string Website,
+    AddressDto Address,
     CompanyDto Company);

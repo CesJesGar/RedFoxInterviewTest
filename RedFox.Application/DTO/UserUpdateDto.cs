@@ -1,6 +1,6 @@
-﻿namespace RedFox.Application.DTO
+namespace RedFox.Application.DTO
 {
-    public record UserCreationDto(
+    public record UserUpdateDto(
         string Name,
         string Username,
         string Email,
