@@ -8,5 +8,5 @@ public class Company
     public string CatchPhrase { get; set; } = string.Empty;
 
     public string Bs { get; set; } = string.Empty;
-    public IEnumerable<User> Users { get; set; } = [];
+    public ICollection<User> Users { get; set; } = new List<User>();
 }
