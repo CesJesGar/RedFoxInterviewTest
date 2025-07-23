@@ -6,6 +6,8 @@ using Microsoft.Extensions.Logging;
 using RedFox.Application.Features.Query;
 using RedFox.Application.Service.Infrastructure;
 using RedFox.Domain.Entities;
+using Microsoft.EntityFrameworkCore;
+
 
 #endregion
 
