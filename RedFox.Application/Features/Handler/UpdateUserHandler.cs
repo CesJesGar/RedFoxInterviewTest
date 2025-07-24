@@ -30,8 +30,10 @@ public class UpdateUserHandler(
             if (entity is null)
                 throw new KeyNotFoundException($"Usuario con Id {request.Id} no encontrado.");
 
+            mapper.Map(request.User, entity); // ← actualiza todo correctamente
 
-            mapper.Map(request, entity);
+            await context.SaveChangesAsync(ct);
+            return mapper.Map<UserDto>(entity);
 
             await context.SaveChangesAsync(ct);
             return mapper.Map<UserDto>(entity);

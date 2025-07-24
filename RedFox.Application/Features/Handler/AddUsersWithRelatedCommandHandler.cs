@@ -21,19 +21,23 @@ public class AddUsersWithRelatedCommandHandler(
 {
     public async Task<IEnumerable<int>> Handle(AddUsersWithRelatedCommand request, CancellationToken ct)
     {
-        await using var transaction = await context.Database.BeginTransactionAsync(ct);
-        try
+        await using var tx = await context.Database.BeginTransactionAsync(ct);
+         try
         {
-            var users = mapper.Map<List<User>>(request.Users);
+            var users = request.Users
+                .Select(dto => mapper.Map<User>(dto))
+                .ToList();                         
+
             await context.Users.AddRangeAsync(users, ct);
             await context.SaveChangesAsync(ct);
-            await transaction.CommitAsync(ct);
+
+            await tx.CommitAsync(ct);
             return users.Select(u => u.Id);
         }
         catch (Exception ex)
         {
             logger.LogError(ex, "Batch user creation failed");
-            await transaction.RollbackAsync(ct);
+            await tx.RollbackAsync(ct);
             throw;
         }
     }

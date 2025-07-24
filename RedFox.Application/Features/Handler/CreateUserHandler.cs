@@ -21,7 +21,7 @@ public class CreateUserHandler(
     {
         public async Task<UserDto> Handle(CreateUserCommand request, CancellationToken ct)
         {
-            var entity = mapper.Map<User>(request);
+            var entity = mapper.Map<User>(request.User);
 
             context.Users.Add(entity);
             await context.SaveChangesAsync(ct);
