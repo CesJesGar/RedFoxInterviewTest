@@ -12,6 +12,10 @@ using RedFox.Application.DTO;
 
 #endregion
 
+
+ /// <summary>
+    /// Inyecta context y mapper para operaciones con EF Core y AutoMapper.
+    /// </summary>
 namespace RedFox.Application.Features.Handler;
 
 public class UpdateUserHandler(
