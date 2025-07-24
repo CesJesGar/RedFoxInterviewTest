@@ -6,6 +6,9 @@ using RedFox.Application.Features.Query;
 using RedFox.Infrastructure;
 using RedFox.Application.DTO;
 using RedFox.Application.Features.Query;
+using FluentValidation;
+using FluentValidation.AspNetCore;
+using RedFox.Application.Validators;
 #endregion
 
 var builder = WebApplication.CreateBuilder(args);
@@ -16,6 +19,9 @@ builder.Services.AddInfrastructureServices(builder.Configuration);
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+builder.Services.AddValidatorsFromAssemblyContaining<UserCreationDtoValidator>();
+
+builder.Services.AddValidatorsFromAssemblyContaining<Program>();
 builder.Services.AddHostedService<DbInitWorker>();
 
 var app = builder.Build();
@@ -31,10 +37,6 @@ app.UseHttpsRedirection();
 // 4. Endpoints CRUD usando MediatR
 
 // GET /users
-
-// app.MapGet("/users", async (IMediator context) => await context.Send(new GetAllUserWithRelatedQuery()))
-//     .WithName("GetUsers")
-//     .WithOpenApi();
 
 app.MapGet("/users", async (IMediator mediator, CancellationToken ct) =>
 {
@@ -57,25 +59,31 @@ app.MapGet("/users/{id:int}", async (int id, IMediator mediator, CancellationTok
 
 // POST /users
 app.MapPost("/users",
-    // ① Recibe directamente el JSON como UserCreationDto
-    async (UserCreationDto dto, IMediator mediator, CancellationToken ct) =>
+    
+    async (UserCreationDto dto, IValidator<UserCreationDto> validator, IMediator mediator, CancellationToken ct) =>
     {
-        // ② Envuelve el DTO en tu comando
+        var result = await validator.ValidateAsync(dto, ct);
+        if (!result.IsValid)
+            return Results.BadRequest(result.Errors);
+
         var command = new CreateUserCommand(dto);
 
-        // ③ Manda el comando y obtiene el UserDto de respuesta
+        
         var created = await mediator.Send(command, ct);
 
-        // ④ Devuelve 201 Created con la URI y el nuevo objeto
+        
         return Results.Created($"/users/{created.Id}", created);
     })
 .WithName("CreateUser")
 .WithOpenApi();
 
 // PUT /users/{id}
-// PUT /users/{id}
-app.MapPut("/users/{id:int}", async (int id, UserUpdateDto dto, IMediator mediator, CancellationToken ct) =>
+app.MapPut("/users/{id:int}", async (int id, UserUpdateDto dto, IValidator<UserUpdateDto> validator, IMediator mediator, CancellationToken ct) =>
 {
+    var result = await validator.ValidateAsync(dto, ct);
+        if (!result.IsValid)
+            return Results.BadRequest(result.Errors);
+
     var command = new UpdateUserCommand(id, dto);
 
     var updated = await mediator.Send(command, ct);

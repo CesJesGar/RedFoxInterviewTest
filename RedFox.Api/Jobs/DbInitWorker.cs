@@ -17,6 +17,11 @@ using RedFox.Application.Service.Infrastructure;
 
 namespace RedFox.Api.Jobs;
 
+/// <summary>
+/// Servicio en background que crea la base de datos y la siembra
+/// con los 10 usuarios de JSONPlaceholder (incluyendo Address/Geo/Company).
+/// </summary>
+
 public class DbInitWorker : BackgroundService
 {
     private readonly ILogger<DbInitWorker> _logger;
@@ -32,12 +37,13 @@ public class DbInitWorker : BackgroundService
     {
         try
         {
+            // 1) Intentamos crear la DB; si ya existe, abortamos.
             if (!await TryInitDb(stoppingToken))
             {
                 _logger.LogInformation("Db already created");
                 return;
             }
-
+             // 1.1) Deserializamos a DTOs y mandamos comando de inserción
             await using var userJsonStream = await FetchUsers(stoppingToken);
             var command = await DeserializeJsonStream(userJsonStream, stoppingToken);
             await AddUserToDb(command, stoppingToken);
@@ -59,10 +65,10 @@ public class DbInitWorker : BackgroundService
 
     foreach (var x in root.EnumerateArray())
     {
-        // 1) Loggear el JSON crudo de este elemento
+        // 2) Loggear el JSON crudo de este elemento
         _logger.LogInformation("Procesando elemento JSON: {Json}", x.GetRawText());
 
-        // 2) Ahora extrae geo, address, company y crea el DTO
+        // 3) Ahora extrae geo, address, company y crea el DTO
         var geoEl = x.GetProperty("address").GetProperty("geo");
         var geo = new GeoDto(
             geoEl.GetProperty("lat").GetString() ?? string.Empty,
