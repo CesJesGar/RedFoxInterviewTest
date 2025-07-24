@@ -9,8 +9,7 @@ using RedFox.Domain.Entities;
 
 namespace RedFox.Infrastructure;
 
-public class AppDbContext(DbContextOptions<AppDbContext> options)
-    : DbContext(options), IAppDbContext
+public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(options), IAppDbContext
 {
     public DbSet<User>    Users      => Set<User>();
     public DbSet<Company> Companies  => Set<Company>();
