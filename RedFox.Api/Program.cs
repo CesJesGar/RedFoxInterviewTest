@@ -9,23 +9,12 @@ using RedFox.Application.Features.Query;
 #endregion
 
 var builder = WebApplication.CreateBuilder(args);
-var command = new CreateUserCommand(dto);
 
 
 builder.Services.AddApplicationServices();
 builder.Services.AddInfrastructureServices(builder.Configuration);
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-using FluentValidation;
-using FluentValidation.AspNetCore;
-
-// …
-
-builder.Services
-    .AddFluentValidationAutoValidation()            // habilita la validación automática en Minimal API
-    .AddFluentValidationClientsideAdapters();       // (opcional, para clientes)
-
-builder.Services.AddValidatorsFromAssemblyContaining<Program>();
 
 builder.Services.AddHostedService<DbInitWorker>();
 
@@ -84,10 +73,10 @@ app.MapPost("/users",
 .WithOpenApi();
 
 // PUT /users/{id}
-app.MapPut("/users/{id:int}", async (int id, UpdateUserCommand command, IMediator mediator, CancellationToken ct) =>
+// PUT /users/{id}
+app.MapPut("/users/{id:int}", async (int id, UserUpdateDto dto, IMediator mediator, CancellationToken ct) =>
 {
-    if (id != command.Id)
-        return Results.BadRequest("El Id de la ruta y del cuerpo no coinciden.");
+    var command = new UpdateUserCommand(id, dto);
 
     var updated = await mediator.Send(command, ct);
     return Results.Ok(updated);
