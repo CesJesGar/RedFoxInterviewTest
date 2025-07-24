@@ -7,9 +7,9 @@ namespace RedFox.Application.Validators
     {
         public GeoDtoValidator()
         {
-            RuleFor(x => x.Lat)
+            RuleFor(x => x.lat)
                 .NotEmpty().WithMessage("Latitude is required.");
-            RuleFor(x => x.Lng)
+            RuleFor(x => x.lng)
                 .NotEmpty().WithMessage("Longitude is required.");
         }
     }
